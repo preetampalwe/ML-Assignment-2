@@ -129,11 +129,7 @@ The repository contains:
 
 Logistic Regression is a supervised classification algorithm used to estimate the probability that an observation belongs to a particular class.
 
-For binary classification, the sigmoid function is used to convert the model output into a probability:
-
-\[
-\sigma(z)=\frac{1}{1+e^{-z}}
-\]
+For binary classification, the sigmoid function is used to convert the model output into a probability.
 
 The resulting probability is used to classify an email as Spam or Non-Spam.
 
@@ -189,10 +185,6 @@ Each of the five models was evaluated using the following six metrics.
 
 Accuracy measures the proportion of correctly classified observations.
 
-\[
-Accuracy = \frac{TP+TN}{TP+TN+FP+FN}
-\]
-
 ---
 
 ## AUC Score
@@ -207,29 +199,17 @@ A higher AUC indicates better class discrimination.
 
 Precision measures the proportion of observations predicted as Spam that were actually Spam.
 
-\[
-Precision = \frac{TP}{TP+FP}
-\]
-
 ---
 
 ## Recall
 
 Recall measures the proportion of actual Spam emails that were correctly identified.
 
-\[
-Recall = \frac{TP}{TP+FN}
-\]
-
 ---
 
 ## F1 Score
 
 F1 Score is the harmonic mean of Precision and Recall.
-
-\[
-F1 = 2 \times \frac{Precision \times Recall}{Precision + Recall}
-\]
 
 ---
 
@@ -257,66 +237,14 @@ The following table shows the performance of all five classification models on t
 
 # 7. Observations on Model Performance
 
-## Logistic Regression
-
-Logistic Regression achieved an accuracy of **92.39%** and an AUC of **97.21%**.
-
-It provided a good balance between Precision and Recall, both at **90.45%**.
-
-The model performed competitively despite being a relatively simple classification algorithm.
-
----
-
-## Decision Tree
-
-The Decision Tree achieved an accuracy of **92.27%**.
-
-Its Precision was **90.66%**, while Recall was **89.85%**.
-
-The model performed similarly to Logistic Regression in terms of Accuracy, Precision, Recall and F1 Score, but its AUC of **91.86%** was considerably lower than the AUC obtained by Logistic Regression.
-
----
-
-## K-Nearest Neighbors
-
-KNN achieved an accuracy of **91.68%** and an AUC of **96.54%**.
-
-Its Precision was **90.27%**, while Recall was **88.66%**.
-
-KNN performed reasonably well overall, although it was slightly below Logistic Regression and Decision Tree on Accuracy and F1 Score.
-
----
-
-## Gaussian Naive Bayes
-
-Gaussian Naive Bayes achieved an accuracy of **82.52%**, which was the lowest Accuracy among the five models.
-
-However, it achieved the **highest Recall of 97.01%**.
-
-This means that Gaussian Naive Bayes was particularly effective at identifying actual Spam emails.
-
-Its Precision was only **70.35%**, indicating that it also classified a relatively larger number of Non-Spam emails as Spam.
-
-Therefore, Gaussian Naive Bayes may be useful when minimizing missed Spam emails is more important than minimizing false Spam detections.
-
----
-
-## Random Forest
-
-Random Forest achieved the best overall performance.
-
-It obtained:
-
-- Accuracy = **95.36%**
-- AUC = **99.12%**
-- Precision = **95.12%**
-- Recall = **93.13%**
-- F1 Score = **94.12%**
-- MCC = **90.30%**
-
-Random Forest achieved the highest Accuracy, AUC, Precision, F1 Score and MCC among all five models.
-
-Its Recall was also high at 93.13%, although Gaussian Naive Bayes achieved a higher Recall.
+| ML Model Name | Observation about model performance |
+|---|---|
+| Logistic Regression | Achieved strong performance with **92.39% accuracy** and **97.21% AUC**, while maintaining a balanced **90.45% precision** and **90.45% recall**. It performed competitively and served as a reliable baseline model. |
+| Decision Tree | Delivered solid results with **92.27% accuracy** and **90.66% precision**, but had a lower **91.86% AUC** compared to Logistic Regression, indicating weaker discrimination between classes. |
+| K-Nearest Neighbors (kNN) | Reached **91.68% accuracy** and **96.54% AUC**, with **90.27% precision** and **88.66% recall**. It performed reasonably well overall, though it was slightly below Logistic Regression and Decision Tree in accuracy and F1 score. |
+| Naive Bayes | Had the **highest recall (97.01%)**, but the lowest overall accuracy (**82.52%**) and relatively low precision (**70.35%**). It was excellent at detecting spam emails but produced more false positives. |
+| Random Forest (Ensemble) | Achieved the best overall performance with **95.36% accuracy**, **99.12% AUC**, **95.12% precision**, **93.13% recall**, **94.12% F1 score**, and **90.30% MCC**, making it the strongest model across nearly all metrics. |
+| Overall Winner for your dataset? | **Random Forest** is the overall winner because it achieved the highest performance in most evaluation metrics, including Accuracy, AUC, Precision, F1 Score, and MCC. Naive Bayes led only in Recall. |
 
 ---
 
@@ -398,13 +326,6 @@ The application also displays a comparison table containing the evaluation resul
 
 The application displays a confusion matrix for the selected model.
 
-For example, the Random Forest model produced the following confusion matrix on the test dataset:
-
-| | Predicted Non-Spam | Predicted Spam |
-|---|---:|---:|
-| **Actual Non-Spam** | 490 | 16 |
-| **Actual Spam** | 23 | 312 |
-
 ---
 
 ## 9.5 Classification Report
@@ -455,56 +376,7 @@ ML-Assignment-2/
 
 ---
 
-# 12. Jupyter Notebook
-
-The complete machine learning implementation is available in:
-
-```text
-notebooks/ML_Assignment_2_Spambase.ipynb
-```
-
-The notebook contains the complete workflow including:
-
-1. Dataset loading
-2. Dataset inspection
-3. Missing-value analysis
-4. Duplicate-record analysis
-5. Conflicting duplicate analysis
-6. Data cleaning
-7. Feature and target separation
-8. Train-test split
-9. Feature scaling
-10. Model implementation
-11. Model evaluation
-12. Comparison of model performance
-13. Confusion matrices
-14. Saving trained models
-
----
-
-# 13. Technologies Used
-
-The project was implemented using:
-
-- Python
-- Jupyter Notebook
-- Pandas
-- NumPy
-- Scikit-learn
-- Joblib
-- Matplotlib
-- Seaborn
-- Streamlit
-
-The application dependencies are specified in:
-
-```text
-requirements.txt
-```
-
----
-
-# 14. Running the Project Locally
+# 12. Running the Project Locally
 
 Clone the repository:
 
@@ -546,19 +418,7 @@ The application can then be opened in a web browser using the local Streamlit UR
 
 ---
 
-# 15. Submission Links
-
-### GitHub Repository
-
-https://github.com/preetampalwe/ML-Assignment-2
-
-### Live Streamlit Application
-
-https://ml-assignment-2-d6nbnmzaxyx5atmnstv4ah.streamlit.app/
-
----
-
-# 16. Conclusion
+# 13. Conclusion
 
 This project demonstrates an end-to-end machine learning classification workflow using the Spambase dataset.
 
