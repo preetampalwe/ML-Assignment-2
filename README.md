@@ -44,18 +44,6 @@ The features include:
 - Character frequency features
 - Capital letter statistics
 
-Examples of features include:
-
-- `word_freq_make`
-- `word_freq_address`
-- `word_freq_free`
-- `word_freq_money`
-- `char_freq_!`
-- `char_freq_$`
-- `capital_run_length_average`
-- `capital_run_length_longest`
-- `capital_run_length_total`
-
 The dataset contains **57 input features** and one target variable named `spam`.
 
 ### Target Variable
@@ -281,17 +269,7 @@ The application supports the following functionality required by the assignment.
 
 The user can upload a **test dataset in CSV format**.
 
-The application validates:
-
-- Number of columns
-- Required feature names
-- Unexpected columns
-- Missing values
-- Numeric feature values
-- Target values
-- Presence of both Spam and Non-Spam classes
-
-Only test data is uploaded to the application.
+The application validates the CSV and gives error if validation fails.
 
 ---
 
