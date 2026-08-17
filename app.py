@@ -195,8 +195,7 @@ def validate_dataset(df):
 
     if df["spam"].nunique() < 2:
         errors.append(
-            "The test dataset must contain both classes: "
-            "Non-Spam (0) and Spam (1)."
+            "The test dataset must contain both classes: Non-Spam (0) and Spam (1)."
         )
 
     return errors
@@ -228,6 +227,12 @@ def load_models():
             model_directory,
             filename
         )
+
+        if not os.path.exists(model_path):
+            raise FileNotFoundError(
+                f"Model file not found: {model_path}. "
+                "Please retrain the models before running the app."
+            )
 
         models[model_name] = joblib.load(model_path)
 
@@ -273,9 +278,21 @@ def evaluate_model(model_bundle, X, y):
     metrics = {
         "Accuracy": accuracy_score(y, predictions),
         "AUC": roc_auc_score(y, probabilities),
-        "Precision": precision_score(y, predictions),
-        "Recall": recall_score(y, predictions),
-        "F1 Score": f1_score(y, predictions),
+        "Precision": precision_score(
+            y,
+            predictions,
+            zero_division=0
+        ),
+        "Recall": recall_score(
+            y,
+            predictions,
+            zero_division=0
+        ),
+        "F1 Score": f1_score(
+            y,
+            predictions,
+            zero_division=0
+        ),
         "MCC": matthews_corrcoef(y, predictions)
     }
 
@@ -290,8 +307,7 @@ def evaluate_model(model_bundle, X, y):
 st.title("📧 Spambase ML Classification")
 
 st.write(
-    "Machine Learning classification of emails as "
-    "Spam or Non-Spam."
+    "Machine Learning classification of emails as Spam or Non-Spam."
 )
 
 
@@ -392,7 +408,7 @@ if uploaded_file is not None:
         st.subheader("Preview of Uploaded Data")
 
         st.dataframe(
-            df.head(10),
+            df.head(5),
             use_container_width=True
         )
 
@@ -428,14 +444,14 @@ if uploaded_file is not None:
                 y
             )
 
-            # Store complete evaluation information
+            # Store complete evaluation information once
             model_evaluation[model_name] = {
                 "metrics": metrics,
                 "predictions": predictions,
                 "probabilities": probabilities
             }
 
-            # Store metrics for comparison table
+            # Store metrics for comparison table and detail display
             results.append({
                 "Model": model_name,
                 "Accuracy": metrics["Accuracy"],
@@ -480,64 +496,30 @@ if uploaded_file is not None:
         # Best Model Summary
         # ====================================================
 
-        best_accuracy_model = results_df.loc[
-            results_df["Accuracy"].idxmax(),
-            "Model"
-        ]
-
-        best_auc_model = results_df.loc[
-            results_df["AUC"].idxmax(),
-            "Model"
-        ]
-
-        best_precision_model = results_df.loc[
-            results_df["Precision"].idxmax(),
-            "Model"
-        ]
-
-        best_recall_model = results_df.loc[
-            results_df["Recall"].idxmax(),
-            "Model"
-        ]
-
-        best_f1_model = results_df.loc[
-            results_df["F1 Score"].idxmax(),
-            "Model"
-        ]
+        metric_labels = {
+            "Accuracy": "Best Accuracy",
+            "AUC": "Best AUC",
+            "Precision": "Best Precision",
+            "Recall": "Best Recall",
+            "F1 Score": "Best F1 Score"
+        }
 
         st.subheader("🏆 Best Performing Models")
 
-        col1, col2, col3, col4, col5 = st.columns(5)
+        metric_columns = list(metric_labels.keys())
+        metric_slots = st.columns(len(metric_columns))
 
-        with col1:
-            st.metric(
-                "Best Accuracy",
-                best_accuracy_model
-            )
+        for idx, metric_name in enumerate(metric_columns):
+            best_model = results_df.loc[
+                results_df[metric_name].idxmax(),
+                "Model"
+            ]
 
-        with col2:
-            st.metric(
-                "Best AUC",
-                best_auc_model
-            )
-
-        with col3:
-            st.metric(
-                "Best Precision",
-                best_precision_model
-            )
-
-        with col4:
-            st.metric(
-                "Best Recall",
-                best_recall_model
-            )
-
-        with col5:
-            st.metric(
-                "Best F1 Score",
-                best_f1_model
-            )
+            with metric_slots[idx]:
+                st.metric(
+                    metric_labels[metric_name],
+                    best_model
+                )
 
         # ====================================================
         # Model Selection
@@ -557,8 +539,18 @@ if uploaded_file is not None:
         # ====================================================
 
         selected_results = model_evaluation[selected_model]
+        selected_row = results_df[
+            results_df["Model"] == selected_model
+        ].iloc[0]
 
-        selected_metrics = selected_results["metrics"]
+        selected_metrics = {
+            "Accuracy": selected_row["Accuracy"],
+            "AUC": selected_row["AUC"],
+            "Precision": selected_row["Precision"],
+            "Recall": selected_row["Recall"],
+            "F1 Score": selected_row["F1 Score"],
+            "MCC": selected_row["MCC"]
+        }
         selected_predictions = selected_results["predictions"]
         selected_probabilities = selected_results["probabilities"]
 
@@ -570,112 +562,96 @@ if uploaded_file is not None:
             f"Detailed evaluation results for **{selected_model}**."
         )
 
-        st.write(
-            "The following metrics evaluate the selected model on "
-            "the uploaded test dataset."
-        )
+        metric_names = [
+            "Accuracy",
+            "AUC",
+            "Precision",
+            "Recall",
+            "F1 Score",
+            "MCC"
+        ]
 
-        metric_col1, metric_col2, metric_col3 = st.columns(3)
+        metric_columns = st.columns(len(metric_names))
 
-        with metric_col1:
-            st.metric(
-                "Accuracy",
-                f"{selected_metrics['Accuracy'] * 100:.2f}%"
-            )
-
-        with metric_col2:
-            st.metric(
-                "AUC",
-                f"{selected_metrics['AUC'] * 100:.2f}%"
-            )
-
-        with metric_col3:
-            st.metric(
-                "Precision",
-                f"{selected_metrics['Precision'] * 100:.2f}%"
-            )
-
-        metric_col4, metric_col5, metric_col6 = st.columns(3)
-
-        with metric_col4:
-            st.metric(
-                "Recall",
-                f"{selected_metrics['Recall'] * 100:.2f}%"
-            )
-
-        with metric_col5:
-            st.metric(
-                "F1 Score",
-                f"{selected_metrics['F1 Score'] * 100:.2f}%"
-            )
-
-        with metric_col6:
-            st.metric(
-                "MCC",
-                f"{selected_metrics['MCC'] * 100:.2f}%"
-            )
+        for idx, metric_name in enumerate(metric_names):
+            with metric_columns[idx]:
+                st.metric(
+                    metric_name,
+                    f"{selected_metrics[metric_name] * 100:.2f}%"
+                    if metric_name in {"Accuracy", "AUC", "Precision", "Recall", "F1 Score"}
+                    else f"{selected_metrics[metric_name] * 100:.2f}%"
+                )
 
         st.divider()
 
         # ====================================================
-        # Confusion Matrix
+        # Confusion Matrix and Classification Report
         # ====================================================
 
-        st.subheader("📊 Confusion Matrix")
+        st.subheader("📊 Confusion Matrix & Classification Report")
 
-        cm = confusion_matrix(
-            y,
-            selected_predictions
-        )
+        cm_col, report_col = st.columns(2)
 
-        cm_df = pd.DataFrame(
-            cm,
-            index=["Actual Non-Spam", "Actual Spam"],
-            columns=["Predicted Non-Spam", "Predicted Spam"]
-        )
+        with cm_col:
+            st.markdown("### Confusion Matrix")
 
-        fig, ax = plt.subplots(figsize=(7, 5))
+            cm = confusion_matrix(
+                y,
+                selected_predictions
+            )
 
-        sns.heatmap(
-            cm_df,
-            annot=True,
-            fmt="d",
-            cmap="Blues",
-            cbar=False,
-            linewidths=0.5,
-            ax=ax
-        )
+            cm_df = pd.DataFrame(
+                cm,
+                index=["Actual Non-Spam", "Actual Spam"],
+                columns=["Predicted Non-Spam", "Predicted Spam"]
+            )
 
-        ax.set_xlabel("Predicted Label")
-        ax.set_ylabel("Actual Label")
-        ax.set_title(
-            f"Confusion Matrix — {selected_model}"
-        )
+            fig, ax = plt.subplots(figsize=(3.5, 3.0))
 
-        st.pyplot(fig)
-        plt.close(fig)
+            sns.heatmap(
+                cm_df,
+                annot=True,
+                fmt="d",
+                cmap="Blues",
+                cbar=False,
+                linewidths=0.5,
+                ax=ax,
+                square=False,
+                annot_kws={"size": 8}
+            )
 
-        st.divider()
+            ax.set_xlabel("Predicted Label", fontsize=8)
+            ax.set_ylabel("Actual Label", fontsize=8)
+            ax.set_title(
+                f"{selected_model}", fontsize=9
+            )
+            ax.tick_params(axis='x', labelsize=7)
+            ax.tick_params(axis='y', labelsize=7)
+            fig.tight_layout()
 
-        # ====================================================
-        # Classification Report
-        # ====================================================
+            st.pyplot(fig)
+            plt.close(fig)
 
-        st.subheader("📋 Classification Report")
+        with report_col:
+            st.markdown("### Classification Report")
 
-        report = classification_report(
-            y,
-            selected_predictions,
-            target_names=["Non-Spam", "Spam"],
-            output_dict=True
-        )
+            report = classification_report(
+                y,
+                selected_predictions,
+                target_names=["Non-Spam", "Spam"],
+                output_dict=True
+            )
 
-        report_df = pd.DataFrame(report).transpose()
+            report_df = pd.DataFrame(report).transpose()
+            report_df = report_df[
+                report_df.index.isin(["Non-Spam", "Spam"])
+            ]
 
-        st.dataframe(
-            report_df.round(4),
-            use_container_width=True
-        )
+            st.dataframe(
+                report_df.round(4),
+                use_container_width=True,
+                height=320
+            )
 
     except Exception as e:
 
@@ -692,7 +668,5 @@ else:
 st.divider()
 
 st.caption(
-    "Spambase Binary Classification | "
-    "Logistic Regression • Decision Tree • KNN • "
-    "Gaussian Naive Bayes • Random Forest"
+    "Spambase Binary Classification | Logistic Regression • Decision Tree • KNN • Gaussian Naive Bayes • Random Forest"
 )
