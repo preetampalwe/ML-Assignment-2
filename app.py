@@ -576,11 +576,9 @@ if uploaded_file is not None:
         for idx, metric_name in enumerate(metric_names):
             with metric_columns[idx]:
                 st.metric(
-                    metric_name,
-                    f"{selected_metrics[metric_name] * 100:.2f}%"
-                    if metric_name in {"Accuracy", "AUC", "Precision", "Recall", "F1 Score"}
-                    else f"{selected_metrics[metric_name] * 100:.2f}%"
-                )
+                            metric_name,
+                            f"{selected_metrics[metric_name] * 100:.2f}%"
+                        )
 
         st.divider()
 
@@ -642,10 +640,7 @@ if uploaded_file is not None:
                 output_dict=True
             )
 
-            report_df = pd.DataFrame(report).transpose()
-            report_df = report_df[
-                report_df.index.isin(["Non-Spam", "Spam"])
-            ]
+            report_df = pd.DataFrame(report).transpose()            
 
             st.dataframe(
                 report_df.round(4),
